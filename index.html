@@ -396,7 +396,9 @@ function makeZip(files){
     const nameB = enc.encode(f.name);
     const crc = crc32(f.data);
     const lh = new DataView(new ArrayBuffer(30));
-    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0,true);
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true);
+    // bit 11 (0x0800) = 文件名按 UTF-8 解释；不置位会导致中文名在解压端乱码
+    lh.setUint16(6,0x0800,true);
     lh.setUint16(8,0,true); lh.setUint16(10,dt,true); lh.setUint16(12,dd,true);
     lh.setUint32(14,crc,true); lh.setUint32(18,f.data.length,true); lh.setUint32(22,f.data.length,true);
     lh.setUint16(26,nameB.length,true); lh.setUint16(28,0,true);
@@ -404,7 +406,9 @@ function makeZip(files){
 
     const ch = new DataView(new ArrayBuffer(46));
     ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true);
-    ch.setUint16(8,0,true); ch.setUint16(10,0,true);
+    // 中央目录同样需要置 UTF-8 标志位（与本地文件头保持一致）
+    ch.setUint16(8,0x0800,true);
+    ch.setUint16(10,0,true);
     ch.setUint16(12,dt,true); ch.setUint16(14,dd,true);
     ch.setUint32(16,crc,true); ch.setUint32(20,f.data.length,true); ch.setUint32(24,f.data.length,true);
     ch.setUint16(28,nameB.length,true);
@@ -693,6 +697,7 @@ async function runGrid(){
   const out = [];   // 待下载的 canvas 列表
 
   if(mode==='vjoin' || mode==='hjoin'){
+    // 多图拼接：输出为单张长图
     const vertical = mode==='vjoin';
     const w = vertical ? Math.max(...GRID.imgs.map(i=>i.naturalWidth))
                        : GRID.imgs.reduce((s,i)=>s+i.naturalWidth+gap, -gap);
@@ -701,13 +706,11 @@ async function runGrid(){
     const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
     const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
     let y=0,x=0;
-    GRID.imgs.forEach((im,i)=>{
+    GRID.imgs.forEach(im=>{
       ctx.drawImage(im, vertical?0:x, vertical?y:0, im.naturalWidth, im.naturalHeight);
       if(vertical) y+=im.naturalHeight+gap; else x+=im.naturalWidth+gap;
-      // 同图等分时逐格记录输出
-      if(/^\d+x\d+$/.test(mode)) out.push(cv);
     });
-    if(!/^\d+x\d+$/.test(mode)) out.push(cv);
+    out.push(cv);
   }else{
     // 等分切图：仅对第一张生效
     const [rows,cols] = mode.split('x').map(Number);
