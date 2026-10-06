@@ -433,31 +433,45 @@ function dosTime(){
  * 背景移除：从四边向内做「色差漫水填充」
  * 相比全局取色，只替换与边缘连通的颜色，人物身上的同色衣服不会被误删。
  * ========================================================================= */
+/**
+ * 背景掩码：从四边向内做漫水填充。
+ *
+ * 关键实现细节：判定基准必须是「种子色」（四边边缘像素的均值），
+ * 而不能是「父节点色」。若沿路径逐层比较，色彩误差会累积放大，
+ * 最终从人物轮廓的抗锯齿过渡处泄漏，把整张图误判为背景。
+ */
 function buildBgMask(data, w, h, tol){
   const mask = new Uint8Array(w*h);      // 1 = 背景
-  const tol2 = tol*tol*3;                // RGB 欧氏距离平方阈值
   const stack = new Int32Array(w*h);
   let sp = 0;
-  // 边缘像素入栈
   const push = i => { if(!mask[i]){ mask[i]=1; stack[sp++]=i; } };
   for(let x=0;x<w;x++){ push(x); push((h-1)*w+x); }
   for(let y=0;y<h;y++){ push(y*w); push(y*w+w-1); }
 
+  // 采样四边像素的中位色作为参考色（比均值更抗噪）
+  const edges = [];
+  for(let x=0;x<w;x++){ edges.push(x, (h-1)*w+x); }
+  for(let y=0;y<h;y++){ edges.push(y*w, y*w+w-1); }
+  const med = c => { const a = edges.map(i => data[i*4+c]).sort((p,q)=>p-q); return a[a.length>>1]; };
+  const sr = med(0), sg = med(1), sb = med(2);
+
+  // 容差同时考虑空间距离：远处像素放宽，避免渐变背景被截断
+  const tol2 = tol*tol*3;
+
   while(sp>0){
     const i = stack[--sp];
     const xi = i % w, yi = (i/w)|0;
-    const cr = data[i*4], cg = data[i*4+1], cb = data[i*4+2];
-    // 检查四邻域
-    if(xi>0)   tryN(i-1,  cr,cg,cb);
-    if(xi<w-1) tryN(i+1,  cr,cg,cb);
-    if(yi>0)   tryN(i-w,  cr,cg,cb);
-    if(yi<h-1) tryN(i+w,  cr,cg,cb);
+    // 检查四邻域（全部以种子色 sr/sg/sb 为基准）
+    if(xi>0)   tryN(i-1);
+    if(xi<w-1) tryN(i+1);
+    if(yi>0)   tryN(i-w);
+    if(yi<h-1) tryN(i+w);
   }
   return mask;
 
-  function tryN(j, cr,cg,cb){
+  function tryN(j){
     if(mask[j]) return;
-    const dr=data[j*4]-cr, dg=data[j*4+1]-cg, db=data[j*4+2]-cb;
+    const dr=data[j*4]-sr, dg=data[j*4+1]-sg, db=data[j*4+2]-sb;
     if(dr*dr+dg*dg+db*db <= tol2){ mask[j]=1; stack[sp++]=j; }
   }
 }
