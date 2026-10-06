@@ -1,136 +1,132 @@
-# 图片急救箱 · 上架物料
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图片急救箱 · 买断版下载与使用说明</title>
+<style>
+  :root{--bg:#0b0e14;--panel:#141922;--panel2:#1b212c;--line:#252c39;
+        --txt:#e8ecf3;--dim:#8d97a8;--accent:#4f8cff;--ok:#2ecc71;--warn:#ff9f43}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 22px}
+  header{padding:52px 0 30px;border-bottom:1px solid var(--line);margin-bottom:34px}
+  h1{font-size:29px;font-weight:800;letter-spacing:-.3px}
+  .sub{color:var(--dim);margin-top:9px;font-size:15px}
+  h2{font-size:19px;font-weight:700;margin:34px 0 12px;padding-left:11px;
+    border-left:3px solid var(--accent)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    padding:20px 22px;margin-bottom:15px}
+  a{color:var(--accent)}
+  code{background:rgba(0,0,0,.3);padding:2px 7px;border-radius:5px;font-size:13.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#8fe3b0}
+  .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 30px;
+    border-radius:9px;font-weight:650;font-size:15px;text-decoration:none;margin:8px 8px 8px 0}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+  ol,ul{padding-left:22px;margin:9px 0}
+  li{margin:5px 0}
+  .note{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.26);
+    border-radius:9px;padding:13px 16px;font-size:13.5px;margin:15px 0}
+  .warn{background:rgba(255,159,67,.08);border-color:rgba(255,159,67,.26)}
+  footer{margin-top:44px;padding:26px 0;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
 
-> 渠道：面包多（mbd.pub）为主，闲鱼为辅
-> 定价建议：**¥19.9**（调研锚点：同类人工换底色 3-5 元/张、拼豆生成器 1.8-9.9 元；
-> 本工具一次买断无限用，且含排版打印与批量处理，19.9 属于「不用问就直接买」的区间）
+<header>
+  <h1>图片急救箱 · 买断版</h1>
+  <p class="sub">买断后永久可用，免费更新，无广告无水印。</p>
+</header>
 
----
+<h2>下载</h2>
+<div class="card">
+  <p style="margin-bottom:6px">解压后双击 <code>图片急救箱.html</code> 即可使用。</p>
+  <p style="color:var(--dim);font-size:13.5px;margin-bottom:16px">
+    建议用 Chrome 或 Edge 打开。若双击没反应，右键文件 → 打开方式 → 选浏览器。</p>
+  <a class="btn" href="./files/img-toolbox.zip" download>下载买断包（ZIP）</a>
+  <a class="btn ghost" href="./tool.html" target="_blank">先在线试用</a>
+</div>
 
-## 一、商品标题（面包多）
+<div class="note">
+  <b>怎么验证「照片不上传」？</b><br>
+  最直接的办法：<b>断网</b>后打开这个文件，功能全部正常 —— 因为所有运算
+  都在你自己的浏览器里完成，工具不含任何网络请求代码。
+</div>
 
-```
-证件照换底色排版打印 + 图片批量压缩 离线工具 断网可用 照片不上传
-```
+<h2>四个功能怎么用</h2>
 
-**备选（更强调痛点）**
-```
-证件照换底色排版 一键生成6寸打印图｜报名照卡在KB限制？离线压缩到指定体积
-```
+<div class="card">
+  <h3 style="font-size:15.5px;margin-bottom:7px">① 证件照换底色</h3>
+  <ol>
+    <li>选底色：白 / 蓝 / 红 / 浅灰 / 深蓝</li>
+    <li>上传正面照 → 点「开始处理」</li>
+    <li>边缘有一圈残留色？把<b>「边缘收缩」</b>往右调 1–2 档</li>
+    <li>背景杂、识别不准？把<b>「识别容差」</b>调大</li>
+  </ol>
+</div>
 
-> 标题不出现「网盘」「微信」「QQ」等词，避免触发平台风控。
+<div class="card">
+  <h3 style="font-size:15.5px;margin-bottom:7px">② 排版打印</h3>
+  <ol>
+    <li>选规格（一寸 25×35mm、二寸 35×49mm…）和相纸尺寸（5/6/7 寸或 A4）</li>
+    <li>生成后<b>用打印机按 100% 实际大小打印</b>，不要选「适合页面」</li>
+    <li>沿线裁开，一次得到 8–10 张</li>
+  </ol>
+</div>
 
----
+<div class="card">
+  <h3 style="font-size:15.5px;margin-bottom:7px">③ 压缩到指定 KB</h3>
+  <ol>
+    <li>填目标大小（如报名系统要求 200KB）</li>
+    <li>可批量选择多张 → 一次性压完并打包成 ZIP</li>
+    <li>工具会二分查找最优画质；若仍超标会自动逐级缩小尺寸直到达标</li>
+  </ol>
+</div>
 
-## 二、封面图（3 张，用浏览器截真实界面）
+<div class="card">
+  <h3 style="font-size:15.5px;margin-bottom:7px">④ 切图与拼接</h3>
+  <ul>
+    <li>长图切九宫格（发小红书用），格间距可调</li>
+    <li>多张图拼成一张长图，输出为单张</li>
+  </ul>
+</div>
 
-主图必须展示**效果**，不要放代码截图。建议：
+<h2>常见问题</h2>
 
-1. **图1（主图）**：证件照换底色前后对比 —— 左蓝底 / 右白底，角标写「照片不上传」
-2. **图2**：6 寸相纸排版预览（10 张一寸）＋ 文案「买 6 寸相纸直接打印」
-3. **图3**：批量压缩结果 —— 「199KB / 198KB / 162KB 全部达标」
+<div class="card">
+  <b>Q：压缩后还是超标？</b>
+  <p style="color:var(--dim);font-size:13.5px">
+    不会。工具会二分找最优质量，若仍超标会自动逐级缩小尺寸直到达标。</p>
+</div>
 
----
+<div class="card">
+  <b>Q：换底色把人脸也去掉了？</b>
+  <p style="color:var(--dim);font-size:13.5px">
+    少数复杂背景可能误判。调小「识别容差」试试，或先用手机自带的「抠图」处理再导入。</p>
+</div>
 
-## 三、详情页正文（可直接粘贴）
+<div class="card">
+  <b>Q：打印出来尺寸不对？</b>
+  <p style="color:var(--dim);font-size:13.5px">
+    打印时务必选<b>「实际大小 / 100%」</b>，选「适合页面」会整体缩放导致尺寸偏小。
+    建议先用尺子量一下打印出的样张。</p>
+</div>
 
-```
-【这是什么】
-一个装在你电脑上的图片工具箱，打开网页就能用。
+<div class="card warn">
+  <b>退款说明</b>
+  <p style="color:var(--dim);font-size:13.5px">
+    数字商品一经下载不支持无理由退款。若工具<b>无法运行或功能与本页描述不符</b>，
+    请联系卖家，会为你重新提供或退款。</p>
+</div>
 
-三个最常用的功能：
-1. 证件照换底色 + 排版打印
-2. 批量压缩到指定体积（报名系统卡 KB 限制专用）
-3. 九宫格切图 / 多图拼接
+<footer>
+  图片急救箱 v1.2 · 完全离线的本地图片工具 · 照片不上传 · 断网可用
+</footer>
 
-【为什么值得买】
-· 照片不上传 —— 所有运算在你自己的浏览器里完成，断网也能用，不经过任何服务器
-· 排版打印 —— 免费小程序只给你单张图，这个直接生成 6 寸相纸版式，买张相纸就能打印
-· 压缩到指定 KB —— 二分找最优质量，压到 200KB 就停，不会为了达标把画质糊掉
-
-【规格覆盖】
-一寸 / 小一寸 / 大一寸 / 二寸 / 小二寸 / 大二寸 / 简历通用一寸 /
-四六级报名照 / 教师资格证 / 护照签证 / 学生证
-全部按 300dpi 计算，尺寸精确到毫米。
-
-【怎么用】
-1. 下载 zip，解压
-2. 双击里面的 HTML 文件，浏览器打开
-3. 拖入图片 → 选规格 → 导出
-没有安装步骤，不需要注册，不联网也能用。
-
-【适合谁】
-· 考公考编、四六级、教资报名被「图片大小限制」卡住的人
-· 需要自己打印证件照、不想每次都花钱的人
-· 电商/小红书运营，需要批量改尺寸压体积的人
-· 不想把自己的照片传到陌生服务器上的人
-
-【交付说明】
-虚拟商品，付款后即可下载使用。
-文件为本地离线工具，不含任何后门与联网行为，可断网验证。
-售出后不支持退换，请先看清上面的功能说明。
-```
-
----
-
-## 四、自动回复话术
-
-买家付款后（面包多自动发送附件，无需手动）：
-
-```
-感谢购买！
-
-1. 解压 zip
-2. 双击「图片急救箱.html」，用浏览器打开
-3. 拖入图片即可使用，全程不用联网
-
-常见问题：
-· 双击没反应？→ 右键 → 打开方式 → 选 Chrome/Edge
-· 换底色有残留边？→ 把「边缘收缩」滑块往右调
-· 压缩压不到目标 KB？→ 工具会自动缩小尺寸直到达标
-· 断网能用吗？→ 能，这是离线工具
-
-有问题直接留言，我看到会回。
-```
-
----
-
-## 五、闲鱼版本（备用渠道）
-
-> ⚠️ 闲鱼红线：商品信息里**不许出现**网盘链接、二维码、微信、QQ —— 全部走站内聊天发文件。
-
-标题：
-```
-证件照换底色排版打印 离线小工具 报名照压缩到指定KB 断网也能用
-```
-
-闲鱼特有的坑与对策：
-
-| 风险 | 对策 |
-|---|---|
-| **仅退款**（平台常判买家赢） | 描述首行写「虚拟商品，交付后不支持退换」；发货时在站内聊天留一段演示说明 |
-| 被同行举报 | 不夸大、不写「最便宜」等极限词；如实描述 |
-| 资料被二次倒卖 | 接受。单文件 HTML 无法有效防盗版，除非做软著（约 1 个月） |
-
----
-
-## 六、定价与预期（务必看清，别自我打气）
-
-调研中的诚实结论：
-
-- **未找到** 2025-2026 年国内个人开发者靠静态工具月入 1000+ 的**可核实案例**。网上的「月入过万」文章基本都是卖项目引流稿。
-- 面包多官方只有平台级汇总数据（2020 年 18000 创作者 / 千万元收入），不是个人案例。
-- ¥19.9 的现实量级：**月入 1000 元 ≈ 50 单**。
-
-所以这产品的正确定位是：**验证「获客→交付→收款」全链路能否跑通**，而不是指望它一个月养活谁。
-
----
-
-## 七、上架后你需要做的（只有这些）
-
-1. 注册面包多（个人、无资质要求）→ https://mbd.pub/
-2. 新建商品，上传 zip，定价 19.9
-3. 复制上面的详情页正文
-4. 上架后把商品链接发给我，我帮你写推广文案
-
-推广渠道我已调研完：V2EX、即刻、小红书、独立开发者论坛。
-EOF
+</div>
+</body>
+</html>
