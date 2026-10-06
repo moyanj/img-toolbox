@@ -29,5 +29,26 @@
     "enabled": false,
     "url": "",
     "note": ""
+  },
+  "product_shots": {
+    "_说明": "销售页展示的实拍/演示图，放在 site/shots/ 下",
+    "enabled": true,
+    "images": [
+      {
+        "file": "./shots/shot1.jpg",
+        "caption": "换底色：蓝底原片 → 白底成品",
+        "tag": "换底色"
+      },
+      {
+        "file": "./shots/shot2.jpg",
+        "caption": "排版打印：6 寸相纸一次排 10 张",
+        "tag": "排版打印"
+      },
+      {
+        "file": "./shots/shot3.jpg",
+        "caption": "批量压缩：自动压到指定 KB",
+        "tag": "批量压缩"
+      }
+    ]
   }
 }
