@@ -66,6 +66,15 @@
     border-top:1px solid var(--line)}
   /* 付款区 */
   .buyslot{display:flex;flex-direction:column;gap:12px}
+  /* 效果展示 */
+  .shots{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+  .shot{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    transition:.18s}
+  .shot:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .shot img{width:100%;display:block;background:#0e1219}
+  .shot .cap{padding:12px 15px;font-size:13px;color:var(--dim)}
+  .shot .st{display:inline-block;background:rgba(79,140,255,.14);color:var(--accent);
+    padding:1px 9px;border-radius:20px;font-size:11px;margin-bottom:6px}
   .bway{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--panel2);text-align:left}
   .bway-h{font-size:13.5px;font-weight:650;margin-bottom:10px}
   .bqrc{max-width:190px;width:100%;border-radius:8px;background:#fff;padding:8px;display:block;margin:0 auto}
@@ -91,6 +100,7 @@
 <div class="bar"><div class="wrap">
   <span class="logo">图片急救箱</span>
   <nav>
+    <a href="#demo">效果</a>
     <a href="#features">功能</a>
     <a href="#compare">对比</a>
     <a href="#price">价格</a>
@@ -141,6 +151,12 @@
       <p>一张长图切九宫格发小红书，或把多张图拼成一张长图。间隔像素可调。</p>
     </div>
   </div>
+</div></section>
+
+<section id="demo"><div class="wrap">
+  <h2>实际效果</h2>
+  <p class="lead">不是宣传语，是工具的真实输出。</p>
+  <div id="shots" class="shots">正在加载…</div>
 </div></section>
 
 <section id="compare"><div class="wrap">
@@ -290,6 +306,16 @@
   slot.innerHTML = parts.length
     ? parts.join('')
     : '<p class="bnote">付款方式配置中，请联系卖家获取。</p>';
+
+  // 效果展示：图片清单来自同一份配置
+  const shotsEl = document.getElementById('shots');
+  const imgs = cfg.product_shots?.enabled ? (cfg.product_shots.images || []) : [];
+  shotsEl.innerHTML = imgs.length
+    ? imgs.map(s => `<figure class="shot" style="margin:0">
+        <img src="${s.file}" alt="${s.caption}" loading="lazy">
+        <figcaption class="cap"><span class="st">${s.tag || ''}</span><br>${s.caption}</figcaption>
+      </figure>`).join('')
+    : '<p class="bnote">暂无截图。</p>';
 
   // 复制地址：Clipboard API 在非 HTTPS 下会被拒，需降级到 execCommand
   const btn = document.getElementById('bcopy-btn');
