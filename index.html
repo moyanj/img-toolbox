@@ -3,887 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>图片急救箱 — 证件照换底色 / 批量压缩改尺寸（离线版）</title>
+<title>图片急救箱 · 离线证件照与图片批处理工具</title>
+<meta name="description" content="证件照换底色、6寸排版打印、批量压缩到指定KB、九宫格切图。完全离线，照片不上传服务器，断网可用。">
 <style>
   :root{
-    --bg:#0f1115; --panel:#181b22; --panel2:#1f232c; --line:#2b303b;
-    --txt:#e6e8ee; --dim:#9aa1b1; --accent:#4f8cff; --ok:#2ecc71; --warn:#ff9f43;
-    --radius:10px;
+    --bg:#0b0e14; --panel:#141922; --panel2:#1b212c; --line:#252c39;
+    --txt:#e8ecf3; --dim:#8d97a8; --accent:#4f8cff; --ok:#2ecc71; --warn:#ff9f43;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:var(--bg); color:var(--txt); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    font-size:14px; line-height:1.6; padding-bottom:60px;
-  }
-  .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
-  header{padding:28px 0 20px;border-bottom:1px solid var(--line);margin-bottom:20px}
-  h1{font-size:22px;font-weight:700;letter-spacing:.5px}
-  .sub{color:var(--dim);font-size:13px;margin-top:6px}
-  .badge{display:inline-block;background:rgba(46,204,113,.12);color:var(--ok);
-    border:1px solid rgba(46,204,113,.3);padding:1px 8px;border-radius:20px;font-size:12px;margin-right:6px}
-  .tabs{display:flex;gap:6px;margin:20px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-  .tab{padding:10px 18px;cursor:pointer;border-radius:8px 8px 0 0;color:var(--dim);
-    border:1px solid transparent;border-bottom:none;font-size:14px;user-select:none}
-  .tab:hover{color:var(--txt);background:var(--panel)}
-  .tab.on{color:var(--txt);background:var(--panel);border-color:var(--line)}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
-  .card h2{font-size:15px;font-weight:600;margin-bottom:4px}
-  .card .desc{color:var(--dim);font-size:12.5px;margin-bottom:14px}
-  .row{display:flex;gap:14px;flex-wrap:wrap}
-  .col{flex:1;min-width:280px}
-  label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:5px}
-  input[type=text],input[type=number],select{
-    width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
-    padding:8px 10px;border-radius:7px;font-size:13px;outline:none;font-family:inherit}
-  input:focus,select:focus{border-color:var(--accent)}
-  input[type=range]{width:100%;accent-color:var(--accent)}
-  .field{margin-bottom:13px}
-  .btn{background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:7px;
-    cursor:pointer;font-size:13px;font-weight:500;font-family:inherit}
-  .btn:hover{filter:brightness(1.1)}
-  .btn:disabled{background:#3a4050;cursor:not-allowed;filter:none}
-  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim)}
-  .btn.ghost:hover{color:var(--txt);border-color:var(--accent)}
-  .btn.sm{padding:6px 11px;font-size:12px}
-  .btns{display:flex;gap:8px;flex-wrap:wrap}
-  .drop{border:2px dashed var(--line);border-radius:var(--radius);padding:34px 18px;text-align:center;
-    cursor:pointer;transition:.15s;background:var(--panel2)}
-  .drop:hover,.drop.over{border-color:var(--accent);background:rgba(79,140,255,.06)}
-  .drop .big{font-size:15px;margin-bottom:6px}
-  .drop .sm{color:var(--dim);font-size:12px}
-  .swatches{display:flex;gap:8px;flex-wrap:wrap}
-  .sw{width:38px;height:38px;border-radius:8px;border:2px solid var(--line);cursor:pointer;position:relative}
-  .sw.on{border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,140,255,.25)}
-  canvas{display:block;max-width:100%;border-radius:8px;background:#000}
-  .stage{background:repeating-conic-gradient(#2a2e38 0% 25%,#22262e 0% 50%) 50%/16px 16px;
-    border-radius:8px;padding:12px;display:flex;justify-content:center;min-height:180px;align-items:center}
-  .hint{color:var(--dim);font-size:12px;background:var(--panel2);border-left:3px solid var(--accent);
-    padding:9px 12px;border-radius:0 6px 6px 0;margin-bottom:13px}
-  table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--line)}
-  th{color:var(--dim);font-weight:500;font-size:12px}
-  td{font-variant-numeric:tabular-nums}
-  .pill{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px}
-  .pill.ok{background:rgba(46,204,113,.15);color:var(--ok)}
-  .pill.warn{background:rgba(255,159,67,.15);color:var(--warn)}
-  .tabs2{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
-  .t2{padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid var(--line);color:var(--dim)}
-  .t2.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-  .thumb{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
-  .thumb img{width:100%;height:110px;object-fit:contain;border-radius:5px;background:#000}
-  .thumb .nm{font-size:11px;color:var(--dim);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .thumb .sz{font-size:11px;color:var(--accent)}
-  .foot{text-align:center;color:var(--dim);font-size:12px;padding:24px 0}
-  kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px}
-  .flexb{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .hide{display:none!important}
-  a{color:var(--accent)}
+  body{background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:940px;margin:0 auto;padding:0 20px}
+  /* 顶栏 */
+  .bar{position:sticky;top:0;z-index:10;background:rgba(11,14,20,.9);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .bar .wrap{display:flex;align-items:center;gap:16px;height:60px}
+  .logo{font-weight:700;font-size:15px;white-space:nowrap}
+  .bar nav{margin-left:auto;display:flex;gap:18px;font-size:13.5px}
+  .bar nav a{color:var(--dim)}
+  .bar nav a:hover{color:var(--txt)}
+  /* 主视觉 */
+  header.hero{padding:64px 0 40px;text-align:center}
+  h1{font-size:40px;font-weight:800;letter-spacing:-.5px;line-height:1.25}
+  .sub{color:var(--dim);font-size:17px;margin-top:14px}
+  .badges{margin-top:22px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+  .badge{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);
+    color:var(--ok);padding:4px 13px;border-radius:20px;font-size:12.5px}
+  .cta{display:inline-block;margin-top:32px;background:var(--accent);color:#fff;
+    padding:14px 40px;border-radius:10px;font-weight:700;font-size:16px;
+    box-shadow:0 6px 24px rgba(79,140,255,.3);transition:.18s}
+  .cta:hover{filter:brightness(1.1);transform:translateY(-2px)}
+  .cta.free{background:var(--ok);box-shadow:0 6px 24px rgba(46,204,113,.3)}
+  /* 区块 */
+  section{padding:44px 0;border-top:1px solid var(--line)}
+  h2{font-size:24px;font-weight:700;margin-bottom:8px}
+  .lead{color:var(--dim);margin-bottom:28px}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .feat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
+  .feat .ic{font-size:26px;margin-bottom:10px}
+  .feat h3{font-size:16px;margin-bottom:7px;font-weight:650}
+  .feat p{color:var(--dim);font-size:13.5px}
+  /* 价格 */
+  .price{background:linear-gradient(150deg,#16233d,#141922);border:1px solid var(--accent);
+    border-radius:16px;padding:34px;text-align:center;max-width:520px;margin:0 auto}
+  .price .amt{font-size:46px;font-weight:800;color:var(--accent)}
+  .price .amt small{font-size:17px;font-weight:500;color:var(--dim)}
+  .price ul{list-style:none;margin:24px 0;text-align:left;display:inline-block}
+  .price li{padding:6px 0 6px 24px;position:relative;font-size:14.5px}
+  .price li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+  /* 对比表 */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:500;font-size:12.5px}
+  td.yes{color:var(--ok);font-weight:600}
+  /* 规格 */
+  .specs{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .spec{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:7px 13px;font-size:13px}
+  footer{padding:36px 0;text-align:center;color:var(--dim);font-size:12.5px;
+    border-top:1px solid var(--line)}
+  .faq{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:18px 20px;margin-bottom:10px}
+  .faq b{display:block;margin-bottom:5px;font-size:14.5px}
+  .faq p{color:var(--dim);font-size:13.5px}
+  @media(max-width:640px){h1{font-size:29px}.hero{padding:44px 0 30px}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <h1>图片急救箱 <span class="badge">完全离线</span><span class="badge">照片不上传</span></h1>
-  <div class="sub">证件照换底色排版 · 批量压缩改尺寸转格式 · 九宫格切图拼图 —— 断网也能用，打开即用，关掉不残留</div>
-</header>
 
-<div class="tabs">
-  <div class="tab on" data-t="id">① 证件照</div>
-  <div class="tab" data-t="batch">② 批量处理</div>
-  <div class="tab" data-t="grid">③ 切图拼图</div>
-  <div class="tab" data-t="spec">规格对照表</div>
-</div>
+<div class="bar"><div class="wrap">
+  <span class="logo">图片急救箱</span>
+  <nav>
+    <a href="#features">功能</a>
+    <a href="#compare">对比</a>
+    <a href="#price">价格</a>
+    <a href="#faq">常见问题</a>
+    <a href="./">在线试用</a>
+  </nav>
+</div></div>
 
-<!-- ============ 模块一：证件照 ============ -->
-<div class="pane" id="p-id">
-  <div class="card">
-    <h2>第 1 步 · 上传照片</h2>
-    <div class="desc">支持 JPG / PNG / WebP。照片只在你的电脑里处理，不会上传到任何服务器。</div>
-    <div class="drop" id="drop-id">
-      <div class="big">点击选择照片，或把图片拖进来</div>
-      <div class="sm">建议：正面照、光线均匀、纯色背景的正面免冠照效果最好</div>
-    </div>
-    <input type="file" id="file-id" accept="image/*" class="hide">
+<header class="hero"><div class="wrap">
+  <h1>证件照换底色 · 排版打印<br>图片批量压缩到指定 KB</h1>
+  <p class="sub">一个装在你自己电脑上的离线工具。照片不上传，断网也能用。</p>
+  <div class="badges">
+    <span class="badge">✓ 完全离线</span>
+    <span class="badge">✓ 照片不上传</span>
+    <span class="badge">✓ 无限次使用</span>
+    <span class="badge">✓ 无需注册</span>
   </div>
+  <a class="cta free" href="./">立即免费在线使用 →</a>
+  <p style="color:var(--dim);font-size:13px;margin-top:12px">
+    试用无需任何安装 · 买断版 ¥19.9 见下方
+  </p>
+</div></header>
 
-  <div class="card hide" id="card-id">
-    <h2>第 2 步 · 换底色 + 选规格</h2>
-    <div class="desc">算法：从画面四边向内漫水填充识别背景 → 替换为指定颜色 → 边缘收缩去蓝边。参数不合适时微调容差即可。</div>
-    <div class="row">
-      <div class="col">
-        <div class="field">
-          <label>底色</label>
-          <div class="swatches" id="swatches"></div>
-        </div>
-        <div class="field">
-          <label>识别容差 <span id="v-tol" style="color:var(--txt)">32</span>
-            <span class="dim">（越小越严格；背景杂乱时调大）</span></label>
-          <input type="range" id="r-tol" min="5" max="90" value="32">
-        </div>
-        <div class="field">
-          <label>边缘收缩 <span id="v-ero" style="color:var(--txt)">1</span>
-            <span class="dim">（去残留蓝边，有白边就加大）</span></label>
-          <input type="range" id="r-ero" min="0" max="4" value="1">
-        </div>
-        <div class="field">
-          <label>规格</label>
-          <select id="sel-spec"></select>
-        </div>
-        <div class="field">
-          <label>裁剪位置（拖动预览图上的虚线框，或用滑块）</label>
-          <input type="range" id="r-crop" min="0" max="100" value="50">
-          <input type="range" id="r-zoom" min="70" max="130" value="100">
-        </div>
-      </div>
-      <div class="col">
-        <label>预览</label>
-        <div class="stage"><canvas id="cv-id"></canvas></div>
-        <div class="btns" style="margin-top:12px">
-          <button class="btn" id="b-save1">导出单张</button>
-          <button class="btn ghost" id="b-sheet">生成排版图</button>
-          <button class="btn ghost sm" id="b-reset">换一张</button>
-        </div>
-        <div id="out-info" style="color:var(--dim);font-size:12px;margin-top:8px"></div>
-      </div>
+<section id="features"><div class="wrap">
+  <h2>解决四个真实麻烦</h2>
+  <p class="lead">不是又一个套壳小程序，每个功能都对应一个具体卡点。</p>
+  <div class="grid">
+    <div class="feat">
+      <div class="ic">🖼️</div>
+      <h3>证件照换底色</h3>
+      <p>白 / 蓝 / 红 / 浅灰 / 深蓝 一键切换。参数可调，边缘自动收缩去残留边。</p>
+    </div>
+    <div class="feat">
+      <div class="ic">🖨️</div>
+      <h3>6 寸相纸排版</h3>
+      <p>自动按 300dpi 算好版式，支持 5/6/7 寸与 A4。买张相纸打印后沿线裁开，
+         一次得到 8–10 张证件照——这是免费小程序基本都不提供的。</p>
+    </div>
+    <div class="feat">
+      <div class="ic">📦</div>
+      <h3>压缩到指定 KB</h3>
+      <p>报名系统常卡「文件不超过 200KB」。工具二分查找最优画质，
+         压到目标就停，不会为了达标把画质糊掉。支持 ZIP 打包下载。</p>
+    </div>
+    <div class="feat">
+      <div class="ic">✂️</div>
+      <h3>切图与拼接</h3>
+      <p>一张长图切九宫格发小红书，或把多张图拼成一张长图。间隔像素可调。</p>
     </div>
   </div>
+</div></section>
 
-  <div class="card hide" id="card-sheet">
-    <h2>第 3 步 · 排版打印</h2>
-    <div class="desc">自动按 300dpi 计算，一寸 8 张即 6 寸相纸标准排版。买 6 寸相纸打印后沿线裁开即可。</div>
-    <div class="row">
-      <div class="col" style="max-width:280px">
-        <div class="field">
-          <label>相纸尺寸</label>
-          <select id="sel-paper">
-            <option value="5">5 寸（89×63mm）</option>
-            <option value="6" selected>6 寸（152×102mm）</option>
-            <option value="7">7 寸（178×127mm）</option>
-            <option value="a4">A4（210×297mm）</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>每张张数</label>
-          <select id="sel-count"></select>
-        </div>
-        <div class="btns">
-          <button class="btn" id="b-sheet-dl">下载排版图</button>
-          <button class="btn ghost sm" id="b-sheet-back">返回</button>
-        </div>
-        <div id="sheet-info" style="color:var(--dim);font-size:12px;margin-top:10px"></div>
-      </div>
-      <div class="col">
-        <div class="stage" style="overflow:auto"><canvas id="cv-sheet"></canvas></div>
-      </div>
+<section id="compare"><div class="wrap">
+  <h2>为什么不用免费小程序</h2>
+  <p class="lead">免费方案当然有，但有三个绕不开的限制。</p>
+  <table>
+    <tr><th>维度</th><th>在线小程序</th><th>本工具</th></tr>
+    <tr><td>照片是否上传服务器</td><td>是，照片经第三方服务器</td><td class="yes">否，全程本地浏览器运算</td></tr>
+    <tr><td>断网可用</td><td>否</td><td class="yes">是</td></tr>
+    <tr><td>排版打印</td><td>多数只给单张</td><td class="yes">直接输出相纸版式</td></tr>
+    <tr><td>广告 / 水印</td><td>常有</td><td class="yes">无</td></tr>
+    <tr><td>批量处理</td><td>通常单张</td><td class="yes">任意多张 + ZIP</td></tr>
+    <tr><td>费用</td><td>免费但有广告</td><td class="yes">买断 ¥19.9</td></tr>
+  </table>
+</div></section>
+
+<section id="specs"><div class="wrap">
+  <h2>支持的证件照规格</h2>
+  <p class="lead">全部按 300dpi 计算，物理尺寸精确到毫米。</p>
+  <div class="specs">
+    <span class="spec">一寸 25×35mm</span>
+    <span class="spec">小一寸 22×32mm</span>
+    <span class="spec">大一寸 33×48mm</span>
+    <span class="spec">二寸 35×49mm</span>
+    <span class="spec">小二寸 33×48mm</span>
+    <span class="spec">大二寸 35×53mm</span>
+    <span class="spec">简历通用一寸</span>
+    <span class="spec">四六级报名照</span>
+    <span class="spec">教师资格证</span>
+    <span class="spec">护照 / 签证</span>
+    <span class="spec">学生证</span>
+  </div>
+  <p style="color:var(--dim);font-size:13.5px;margin-top:18px">
+    还内置了常见电商平台图片要求对照表（淘宝 / 京东 / 拼多多 / 小红书 / LinkedIn）
+    与各底色的 RGB 值，方便你在别的软件里手动填色。
+  </p>
+</div></section>
+
+<section id="price"><div class="wrap">
+  <h2>价格</h2>
+  <p class="lead">在线版免费，够用就不用买。买断版只是省掉每次打开网页的麻烦。</p>
+  <div class="price">
+    <div class="amt">¥19.9 <small>一次性买断</small></div>
+    <ul>
+      <li>完整离线版，永久可用</li>
+      <li>未来版本更新免费</li>
+      <li>无广告、无水印、无账号</li>
+      <li>解压即用，不装任何东西</li>
+    </ul>
+    <a class="cta" href="#buy">获取买断版 →</a>
+    <p style="color:var(--dim);font-size:12.5px;margin-top:14px">
+      对比：证件照人工换底色普遍 3–5 元/张，打印还得另跑一趟。
+    </p>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <h2>常见问题</h2>
+  <div style="margin-top:20px">
+    <div class="faq"><b>双击打开没反应？</b>
+      <p>右键文件 → 打开方式 → 选 Chrome 或 Edge。极少数浏览器可能拦截本地文件，换一个即可。</p></div>
+    <div class="faq"><b>换底色后边缘有一圈残留色？</b>
+      <p>把「边缘收缩」滑块往右调 1–2 档。这是在吃掉原背景色的过渡像素。</p></div>
+    <div class="faq"><b>背景比较杂，识别不准？</b>
+      <p>把「识别容差」调大。也可以先用手机自带的「抠图」功能处理，再导入。</p></div>
+    <div class="faq"><b>压缩后还是超标？</b>
+      <p>不会。工具会二分找最优质量，若仍超标会自动逐级缩小尺寸直到达标。</p></div>
+    <div class="faq"><b>真的不上传照片吗？</b>
+      <p>真的。所有计算都在你自己浏览器的 Canvas 里完成，工具不含任何网络请求代码。
+         可以断网打开验证——这是最直接的检验方式。</p></div>
+  </div>
+</div></section>
+
+<section id="buy"><div class="wrap">
+  <h2>获取买断版</h2>
+  <p class="lead">下面是获取方式。</p>
+  <div class="price" style="max-width:640px">
+    <p style="color:var(--dim);font-size:13.5px;margin-bottom:18px">
+      联系方式与支付方式由站方配置。若你是在本地看到这份页面，
+      说明你是本地访问——请通过正式发布渠道获取。
+    </p>
+    <div id="buy-slot" style="padding:16px;border:1px dashed var(--line);border-radius:10px">
+      <p style="color:var(--dim);font-size:13px">支付入口配置中…</p>
     </div>
   </div>
-</div>
+</div></section>
 
-<!-- ============ 模块二：批量处理 ============ -->
-<div class="pane hide" id="p-batch">
-  <div class="card">
-    <h2>批量压缩 / 改尺寸 / 转格式</h2>
-    <div class="desc">电商平台上传主图常限 3MB 内、要求正方形白底 —— 这里一次搞定，全程本地。</div>
-    <div class="drop" id="drop-batch">
-      <div class="big">点击选择多张图片，或拖进来</div>
-      <div class="sm">支持批量 JPG / PNG / WebP 混合导入</div>
-    </div>
-    <input type="file" id="file-batch" accept="image/*" multiple class="hide">
-  </div>
+<footer><div class="wrap">
+  图片急救箱 v1.2 · 完全离线的本地图片工具 · 照片不上传 · 断网可用
+</div></footer>
 
-  <div class="card hide" id="card-batch">
-    <h2>处理设置</h2>
-    <div class="row">
-      <div class="col">
-        <div class="field">
-          <label>操作模式</label>
-          <select id="sel-mode">
-            <option value="compress">压缩到指定体积以内</option>
-            <option value="resize">统一尺寸</option>
-            <option value="pad">补白成正方形（电商主图）</option>
-            <option value="convert">仅转换格式</option>
-          </select>
-        </div>
-        <div class="field" id="f-kb">
-          <label>目标体积（KB）</label>
-          <input type="number" id="i-kb" value="200" min="10" max="5000">
-          <div style="color:var(--dim);font-size:11.5px;margin-top:4px">压不到目标时会自动逐级缩小尺寸，直到达标</div>
-        </div>
-        <div class="field hide" id="f-size">
-          <label>目标尺寸</label>
-          <div style="display:flex;gap:8px">
-            <input type="number" id="i-w" placeholder="宽" value="1200">
-            <input type="number" id="i-h" placeholder="高" value="1200">
-          </div>
-        </div>
-        <div class="field hide" id="f-fmt">
-          <label>输出格式</label>
-          <select id="sel-fmt">
-            <option value="image/jpeg">JPG</option>
-            <option value="image/webp">WebP（更小）</option>
-            <option value="image/png">PNG（无损）</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>输出文件名后缀</label>
-          <input type="text" id="i-suffix" value="_压缩">
-        </div>
-      </div>
-      <div class="col">
-        <label>结果预览</label>
-        <div style="max-height:320px;overflow:auto"><div class="grid" id="batch-grid"></div></div>
-        <div class="btns" style="margin-top:12px">
-          <button class="btn" id="b-batch-run">开始处理</button>
-          <button class="btn ghost" id="b-batch-zip">打包下载 (ZIP)</button>
-          <button class="btn ghost sm" id="b-batch-clear">清空</button>
-        </div>
-        <div id="batch-sum" style="color:var(--dim);font-size:12px;margin-top:8px"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============ 模块三：切图拼图 ============ -->
-<div class="pane hide" id="p-grid">
-  <div class="card">
-    <h2>九宫格切图 / 多图拼接</h2>
-    <div class="desc">小红书、朋友圈发图必备。切图支持把 1 张长图切成 9 张，或按比例自动等分。</div>
-    <div class="row">
-      <div class="col">
-        <div class="field">
-          <label>选择图片</label>
-          <div class="drop" id="drop-grid" style="padding:20px">
-            <div class="big" style="font-size:13.5px">点击选择</div>
-            <div class="sm" id="grid-nm">未选择</div>
-          </div>
-          <input type="file" id="file-grid" accept="image/*" multiple class="hide">
-        </div>
-        <div class="field">
-          <label>模式</label>
-          <select id="sel-grid">
-            <option value="3x3">切成九宫格 (3×3)</option>
-            <option value="2x2">切成四宫格 (2×2)</option>
-            <option value="1x4">横向等分 4 份</option>
-            <option value="4x1">纵向等分 4 份</option>
-            <option value="vjoin">多图竖向拼接（长图）</option>
-            <option value="hjoin">多图横向拼接</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>间隔（px）</label>
-          <input type="number" id="i-gap" value="0" min="0" max="40">
-        </div>
-        <div class="btns">
-          <button class="btn" id="b-grid-run">生成</button>
-          <button class="btn ghost" id="b-grid-zip">打包下载 (ZIP)</button>
-        </div>
-        <div id="grid-info" style="color:var(--dim);font-size:12px;margin-top:8px"></div>
-      </div>
-      <div class="col">
-        <label>预览</label>
-        <div class="stage" style="max-height:420px;overflow:auto"><canvas id="cv-grid"></canvas></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============ 模块四：规格表 ============ -->
-<div class="pane hide" id="p-spec">
-  <div class="card">
-    <h2>常见证件照 / 平台图规格对照</h2>
-    <div class="desc">按 300dpi 计算的物理尺寸与像素。不确定用哪个时，选「简历通用一寸」最保险。</div>
-    <table id="spec-table"></table>
-  </div>
-  <div class="card">
-    <h2>常见电商平台图片要求</h2>
-    <table id="shop-table"></table>
-  </div>
-  <div class="card">
-    <h2>常见底色 RGB 值</h2>
-    <div class="desc">用于其他软件里手动填色时参考。</div>
-    <table id="rgb-table"></table>
-  </div>
-</div>
-
-<div class="foot">本工具全部运算在你的浏览器内完成，不联网、不上传、不留存。<br>去背景效果取决于原片背景是否干净 —— 复杂背景请先用手机自带的「抠图」功能。</div>
-</div>
-
-<script>
-"use strict";
-/* =========================================================================
- * 图片急救箱 —— 纯前端离线图片工具
- * 设计约束：不依赖任何外部库/CDN，断网可用；所有运算在 Canvas 内完成。
- * ========================================================================= */
-
-/* ---------- 常量表：证件照规格（300dpi 像素） ---------- */
-const SPECS = [
-  {k:'p1',   n:'一寸（最常用）',     mm:'25×35',   w:295,  h:413},
-  {k:'p1s',  n:'小一寸',            mm:'22×32',   w:260,  h:378},
-  {k:'p1b',  n:'大一寸',            mm:'33×48',   w:390,  h:567},
-  {k:'p2',   n:'二寸',              mm:'35×49',   w:413,  h:579},
-  {k:'p2s',  n:'小二寸',            mm:'33×48',   w:390,  h:567},
-  {k:'p2b',  n:'大二寸',            mm:'35×53',   w:413,  h:626},
-  {k:'cv',   n:'简历通用一寸',      mm:'25×35',   w:295,  h:413},
-  {k:'cet',  n:'四六级考试报名照',  mm:'15×22',   w:144,  h:192},
-  {k:'tea',  n:'教师资格证',        mm:'25×35',   w:295,  h:413},
-  {k:'ppt',  n:'护照/签证',         mm:'33×48',   w:390,  h:567},
-  {k:'stu',  n:'学生证',            mm:'一寸(蓝)',w:295,  h:413},
-];
-/* 相纸尺寸（mm） */
-const PAPERS = { '5':[89,63], '6':[152,102], '7':[178,127], 'a4':[210,297] };
-/* 底色预设 */
-const BGS = [
-  {n:'白', c:'#FFFFFF'}, {n:'蓝', c:'#438EDB'}, {n:'红', c:'#FF0000'},
-  {n:'浅灰', c:'#D9D9D9'}, {n:'深蓝', c:'#1E4E8C'},
-];
-const DPI = 300, MM2PX = DPI/25.4;   // 毫米 → 像素
-
-/* ---------- 通用工具 ---------- */
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const mm2px = mm => Math.round(mm*MM2PX);
-
-/** 读取 File 为 HTMLImageElement（同时用于后续重绘，故保留引用） */
-function loadImage(file){
-  return new Promise((res,rej)=>{
-    const fr = new FileReader();
-    fr.onload = () => {
-      const img = new Image();
-      img.onload = () => res(img);
-      img.onerror = rej;
-      img.src = fr.result;
-    };
-    fr.onerror = rej;
-    fr.readAsDataURL(file);
-  });
-}
-/** canvas → Blob，带类型和质量 */
-function toBlob(cv, mime, q){
-  return new Promise(res => cv.toBlob(b => res(b), mime, q));
-}
-/** 触发浏览器下载 */
-function download(blob, name){
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a); a.click();
-  // 立即回收，避免内存泄漏（离线工具反复使用会累积）
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 3000);
-}
-/** 生成文件名：原名_规格_底色_时间戳 */
-function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,'0');
-  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
-
-/* =========================================================================
- * 最小 ZIP 打包器（store 模式，无压缩）
- * JPEG/PNG 本身已压缩，再 deflate 收益极低，故只做 store，
- * 好处是零依赖、几十行即可，足够批量交付场景。
- * ========================================================================= */
-const CRC_T = (()=>{ const t=new Uint32Array(256);
-  for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = (c&1) ? (0xEDB88320^(c>>>1)) : (c>>>1); t[n]=c>>>0; } return t; })();
-function crc32(u8){ let c=0xFFFFFFFF;
-  for(let i=0;i<u8.length;i++) c = CRC_T[(c^u8[i])&0xFF]^(c>>>8);
-  return (c^0xFFFFFFFF)>>>0; }
-
-/** files: [{name:string, data:Uint8Array}] → Blob(zip) */
-function makeZip(files){
-  const enc = new TextEncoder();
-  const chunks = [], central = [];
-  let offset = 0;
-  const {dt, dd} = dosTime();
-  for(const f of files){
-    const nameB = enc.encode(f.name);
-    const crc = crc32(f.data);
-    const lh = new DataView(new ArrayBuffer(30));
-    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true);
-    // bit 11 (0x0800) = 文件名按 UTF-8 解释；不置位会导致中文名在解压端乱码
-    lh.setUint16(6,0x0800,true);
-    lh.setUint16(8,0,true); lh.setUint16(10,dt,true); lh.setUint16(12,dd,true);
-    lh.setUint32(14,crc,true); lh.setUint32(18,f.data.length,true); lh.setUint32(22,f.data.length,true);
-    lh.setUint16(26,nameB.length,true); lh.setUint16(28,0,true);
-    chunks.push(new Uint8Array(lh.buffer), nameB, f.data);
-
-    const ch = new DataView(new ArrayBuffer(46));
-    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true);
-    // 中央目录同样需要置 UTF-8 标志位（与本地文件头保持一致）
-    ch.setUint16(8,0x0800,true);
-    ch.setUint16(10,0,true);
-    ch.setUint16(12,dt,true); ch.setUint16(14,dd,true);
-    ch.setUint32(16,crc,true); ch.setUint32(20,f.data.length,true); ch.setUint32(24,f.data.length,true);
-    ch.setUint16(28,nameB.length,true);
-    ch.setUint32(42,offset,true);
-    central.push(new Uint8Array(ch.buffer), nameB);
-    offset += 30 + nameB.length + f.data.length;
-  }
-  let cdSize = 0; central.forEach(c => cdSize += c.length);
-  const eo = new DataView(new ArrayBuffer(22));
-  eo.setUint32(0,0x06054b50,true);
-  eo.setUint16(8,files.length,true); eo.setUint16(10,files.length,true);
-  eo.setUint32(12,cdSize,true); eo.setUint32(16,offset,true);
-  return new Blob([...chunks, ...central, new Uint8Array(eo.buffer)], {type:'application/zip'});
-}
-function dosTime(){
-  const d=new Date();
-  return { dt:((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()/2))&0xFFFF,
-           dd:(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF };
-}
-
-/* =========================================================================
- * 背景移除：从四边向内做「色差漫水填充」
- * 相比全局取色，只替换与边缘连通的颜色，人物身上的同色衣服不会被误删。
- * ========================================================================= */
-/**
- * 背景掩码：从四边向内做漫水填充。
- *
- * 关键实现细节：判定基准必须是「种子色」（四边边缘像素的均值），
- * 而不能是「父节点色」。若沿路径逐层比较，色彩误差会累积放大，
- * 最终从人物轮廓的抗锯齿过渡处泄漏，把整张图误判为背景。
- */
-function buildBgMask(data, w, h, tol){
-  const mask = new Uint8Array(w*h);      // 1 = 背景
-  const stack = new Int32Array(w*h);
-  let sp = 0;
-  const push = i => { if(!mask[i]){ mask[i]=1; stack[sp++]=i; } };
-  for(let x=0;x<w;x++){ push(x); push((h-1)*w+x); }
-  for(let y=0;y<h;y++){ push(y*w); push(y*w+w-1); }
-
-  // 采样四边像素的中位色作为参考色（比均值更抗噪）
-  const edges = [];
-  for(let x=0;x<w;x++){ edges.push(x, (h-1)*w+x); }
-  for(let y=0;y<h;y++){ edges.push(y*w, y*w+w-1); }
-  const med = c => { const a = edges.map(i => data[i*4+c]).sort((p,q)=>p-q); return a[a.length>>1]; };
-  const sr = med(0), sg = med(1), sb = med(2);
-
-  // 容差同时考虑空间距离：远处像素放宽，避免渐变背景被截断
-  const tol2 = tol*tol*3;
-
-  while(sp>0){
-    const i = stack[--sp];
-    const xi = i % w, yi = (i/w)|0;
-    // 检查四邻域（全部以种子色 sr/sg/sb 为基准）
-    if(xi>0)   tryN(i-1);
-    if(xi<w-1) tryN(i+1);
-    if(yi>0)   tryN(i-w);
-    if(yi<h-1) tryN(i+w);
-  }
-  return mask;
-
-  function tryN(j){
-    if(mask[j]) return;
-    const dr=data[j*4]-sr, dg=data[j*4+1]-sg, db=data[j*4+2]-sb;
-    if(dr*dr+dg*dg+db*db <= tol2){ mask[j]=1; stack[sp++]=j; }
-  }
-}
-
-/** 前景掩码腐蚀 N 像素：消除换底色后残留的原背景色边缘（蓝边/白边） */
-function erode(fg, w, h, n){
-  let cur = fg;
-  for(let k=0;k<n;k++){
-    const next = new Uint8Array(cur);
-    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-      const i=y*w+x;
-      if(!cur[i]) continue;
-      // 前景像素若四邻中存在背景，则被削掉一层
-      if((x===0||!cur[i-1])||(x===w-1||!cur[i+1])||(y===0||!cur[i-w])||(y===h-1||!cur[i+w]))
-        next[i]=0;
-    }
-    cur = next;
-  }
-  return cur;
-}
-
-/** 替换背景色，并在前景/背景交界做 1px 羽化，消除锯齿 */
-function applyBg(imgData, bgHex, tol, erodeN){
-  const {width:w, height:h, data} = imgData;
-  const mask = buildBgMask(data, w, h, tol);
-  const fg = erode(mask, w, h, erodeN);      // 1 = 前景
-  const [nr,ng,nb] = hex2rgb(bgHex);
-
-  // 先把背景全部替换为目标色
-  for(let i=0;i<w*h;i++){
-    if(mask[i]){ data[i*4]=nr; data[i*4+1]=ng; data[i*4+2]=nb; data[i*4+3]=255; }
-  }
-  // 交界像素与目标色做线性混合（羽化）
-  for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++){
-    const i=y*w+x;
-    if(fg[i]) continue;
-    // 前景邻居存在 → 半透明边缘，用目标色提亮
-    if(fg[i-1]||fg[i+1]||fg[i-w]||fg[i+w]){
-      data[i*4]   = Math.round(data[i*4]  *0.5 + nr*0.5);
-      data[i*4+1] = Math.round(data[i*4+1]*0.5 + ng*0.5);
-      data[i*4+2] = Math.round(data[i*4+2]*0.5 + nb*0.5);
-    }
-  }
-  return {imgData, mask, fg};
-}
-function hex2rgb(hx){
-  const h=hx.replace('#','');
-  return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
-}
-
-/* =========================================================================
- * 证件照模块状态与渲染
- * ========================================================================= */
-const ID = {
-  img:null,          // 原始 HTMLImageElement
-  orig:null,         // 原始像素副本（每次重新渲染都从这里出发，避免叠加处理）
-  bg:'#FFFFFF', tol:32, ero:1, spec:SPECS[0],
-  crop:50, zoom:100,
-  outBlob:null, outName:'',
-};
-const cvId = $('#cv-id');
-
-/** 取原始像素的副本并换底 → 输出当前规格尺寸的 canvas */
-function renderId(){
-  if(!ID.img) return;
-  const w = ID.img.naturalWidth, h = ID.img.naturalHeight;
-  // 1) 复制原始像素并换底
-  const work = document.createElement('canvas'); work.width=w; work.height=h;
-  const wctx = work.getContext('2d', {willReadFrequently:true});
-  wctx.drawImage(ID.img, 0, 0);
-  const idata = wctx.getImageData(0,0,w,h);
-  applyBg(idata, ID.bg, ID.tol, ID.ero);
-  wctx.putImageData(idata, 0, 0);
-
-  // 2) 按规格比例裁剪（cover 填充），滑块控制纵向位置、缩放微调
-  const s = ID.spec, ar = s.w/s.h;
-  const base = Math.min(w/ar, h);          // 裁剪基准边长
-  const cw = base*ar/ (ID.zoom/100), ch = base/ (ID.zoom/100);
-  let sx = (w-cw)/2, sy = (h-ch)*(ID.crop/100);
-  sx = Math.max(0, Math.min(w-cw, sx)); sy = Math.max(0, Math.min(h-ch, sy));
-
-  cvId.width = s.w; cvId.height = s.h;
-  const ctx = cvId.getContext('2d');
-  ctx.fillStyle = ID.bg; ctx.fillRect(0,0,s.w,s.h);
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(work, sx, sy, cw, ch, 0, 0, s.w, s.h);
-
-  $('#out-info').textContent =
-    `输出 ${s.w}×${s.h}px（${s.n} ${s.mm}mm @300dpi）· 源图 ${w}×${h}px · 预览即最终效果`;
-}
-
-/* ---------- 排版打印 ---------- */
-function renderSheet(){
-  const p = PAPERS[$('#sel-paper').value];
-  const pw = mm2px(p[0]), ph = mm2px(p[1]);
-  const s = ID.spec;
-  // 单元格 = 照片尺寸 + 2mm 裁切留白
-  const pad = mm2px(2);
-  const cw = s.w + pad, ch = s.h + pad;
-  const cols = Math.floor(pw/cw), rows = Math.floor(ph/ch);
-  const maxN = cols*rows;
-  const want = parseInt($('#sel-count').value, 10) || maxN;
-  const n = Math.min(want, maxN);
-
-  // 更新张数下拉
-  const sel = $('#sel-count');
-  if(!sel.dataset.p || sel.dataset.p !== `${cols}x${rows}`){
-    sel.dataset.p = `${cols}x${rows}`;
-    sel.innerHTML = Array.from({length:rows},(_,r)=>r+1)
-      .map(r => Math.min(cols*(r+1), maxN) - cols*r > 0 ? `<option value="${Math.min(cols*(r+1),maxN)}">${Math.min(cols*(r+1),maxN)} 张（${r+1} 行）</option>` : '')
-      .join('') + `<option value="${maxN}">铺满 ${maxN} 张</option>`;
-    sel.value = String(Math.min(8, maxN));
-  }
-
-  const cv = $('#cv-sheet');
-  cv.width = pw; cv.height = ph;
-  const ctx = cv.getContext('2d');
-  ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,pw,ph);
-  // 居中排布
-  const ox = (pw - cols*cw)/2, oy = (ph - rows*ch)/2;
-  for(let i=0;i<n;i++){
-    const x = ox + (i%cols)*cw + pad/2, y = oy + Math.floor(i/cols)*ch + pad/2;
-    ctx.drawImage(cvId, x, y, s.w, s.h);
-    ctx.strokeStyle='#BBBBBB'; ctx.lineWidth=1;   // 裁切线
-    ctx.strokeRect(x+.5, y+.5, s.w, s.h);
-  }
-  $('#sheet-info').innerHTML =
-    `相纸 ${p[0]}×${p[1]}mm → ${pw}×${ph}px @300dpi<br>排布 ${cols}列×${rows}行，实际输出 <b>${n}</b> 张`;
-}
-
-/* =========================================================================
- * 批量处理模块
- * ========================================================================= */
-const BAT = { files:[], results:[] };
-const $mode = $('#sel-mode');
-function syncModeFields(){
-  const m = $mode.value;
-  $('#f-kb').classList.toggle('hide', m!=='compress');
-  $('#f-size').classList.toggle('hide', m!=='resize');
-  $('#f-fmt').classList.toggle('hide', m!=='convert');
-}
-
-/** 单图处理主逻辑：返回 {blob,w,h} */
-async function processOne(img, mode){
-  const ow = img.naturalWidth, oh = img.naturalHeight;
-  let fmt = (mode==='convert' ? $('#sel-fmt').value
-           : (mode==='compress' ? 'image/jpeg' : 'image/png'));
-  if(fmt==='image/png' && mode!=='convert') fmt='image/jpeg';
-
-  // 决定目标画布尺寸
-  let tw = ow, th = oh;
-  if(mode==='resize'){ tw = +$('#i-w').value||ow; th = +$('#i-h').value||oh; }
-  else if(mode==='pad'){
-    const side = Math.max(ow,oh);
-    tw = th = side;
-  }
-
-  const cv = document.createElement('canvas'); cv.width=tw; cv.height=th;
-  const ctx = cv.getContext('2d');
-  if(fmt==='image/jpeg'||fmt==='image/webp'){ ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,tw,th); }
-  if(mode==='pad'){
-    const dx=(tw-ow)/2, dy=(th-oh)/2;
-    ctx.drawImage(img, dx, dy, ow, oh);      // 居中补白
-  }else{
-    ctx.imageSmoothingQuality='high';
-    ctx.drawImage(img, 0, 0, ow, oh, 0, 0, tw, th);
-  }
-
-  // 压缩到目标体积：先调质量，仍超标则逐级降尺寸
-  if(mode==='compress'){
-    const target = (+$('#i-kb').value||200)*1024;
-    let blob = await toBlob(cv, fmt, .9);
-    let shrink = 1;
-    while(blob.size > target && shrink > 0.1){
-      // 质量不足时用二分找最优质量
-      let lo=.05, hi=.9;
-      for(let k=0;k<10;k++){
-        const mid=(lo+hi)/2;
-        const t = await toBlob(cv, fmt, mid);
-        if(t.size <= target) lo=mid; else hi=mid;
-      }
-      blob = await toBlob(cv, fmt, lo);
-      if(blob.size > target){          // 质量已到底 → 缩小画布重来
-        shrink *= 0.85;
-        const nw = Math.round(tw*0.85), nh = Math.round(th*0.85);
-        cv.width=nw; cv.height=nh;
-        const c2=cv.getContext('2d');
-        c2.fillStyle='#FFFFFF'; c2.fillRect(0,0,nw,nh);
-        c2.imageSmoothingQuality='high';
-        if(mode==='pad') c2.drawImage(img,(nw-ow*0.85)/2,(nh-oh*0.85)/2,ow*0.85,oh*0.85);
-        else c2.drawImage(img,0,0,nw,nh);
-        tw=nw; th=nh;
-      }
-    }
-    return {blob, w:tw, h:th};
-  }
-  const blob = await toBlob(cv, fmt, .92);
-  return {blob, w:tw, h:th};
-}
-
-async function runBatch(){
-  if(!BAT.files.length) return;
-  const btn=$('#b-batch-run'); btn.disabled=true; btn.textContent='处理中…';
-  BAT.results = [];
-  const mode = $mode.value, suf = $('#i-suffix').value;
-  for(const item of BAT.files){
-    try{
-      const r = await processOne(item.img, mode);
-      const base = item.name.replace(/\.[^.]+$/,'');
-      const ext = r.blob.type==='image/png'?'png':r.blob.type==='image/webp'?'webp':'jpg';
-      r.name = `${base}${suf}.${ext}`;
-      r.src = URL.createObjectURL(r.blob);
-      BAT.results.push(r);
-    }catch(e){ console.error('处理失败', item.name, e); }
-  }
-  // 渲染缩略图 + 统计
-  const grid = $('#batch-grid');
-  grid.innerHTML = BAT.results.map(r=>`
-    <div class="thumb">
-      <img src="${r.src}" alt="">
-      <div class="nm" title="${r.name}">${r.name}</div>
-      <div class="sz">${(r.blob.size/1024).toFixed(0)} KB · ${r.w}×${r.h}</div>
-    </div>`).join('');
-  const before = BAT.files.reduce((s,f)=>s+f.img.naturalWidth*f.img.naturalHeight,0);
-  const after  = BAT.results.reduce((s,r)=>s+r.blob.size,0);
-  $('#batch-sum').innerHTML = `完成 <b>${BAT.results.length}/${BAT.files.length}</b> 张 · 压缩后共 ${(after/1048576).toFixed(2)} MB`;
-  btn.disabled=false; btn.textContent='开始处理';
-}
-
-/* =========================================================================
- * 切图拼图模块
- * ========================================================================= */
-const GRID = { imgs:[] };
-async function runGrid(){
-  const mode = $('#sel-grid').value, gap = +$('#i-gap').value||0;
-  if(!GRID.imgs.length){ $('#grid-info').textContent='请先选择图片'; return; }
-  const out = [];   // 待下载的 canvas 列表
-
-  if(mode==='vjoin' || mode==='hjoin'){
-    // 多图拼接：输出为单张长图
-    const vertical = mode==='vjoin';
-    const w = vertical ? Math.max(...GRID.imgs.map(i=>i.naturalWidth))
-                       : GRID.imgs.reduce((s,i)=>s+i.naturalWidth+gap, -gap);
-    const h = vertical ? GRID.imgs.reduce((s,i)=>s+i.naturalHeight+gap, -gap)
-                       : Math.max(...GRID.imgs.map(i=>i.naturalHeight));
-    const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-    const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
-    let y=0,x=0;
-    GRID.imgs.forEach(im=>{
-      ctx.drawImage(im, vertical?0:x, vertical?y:0, im.naturalWidth, im.naturalHeight);
-      if(vertical) y+=im.naturalHeight+gap; else x+=im.naturalWidth+gap;
-    });
-    out.push(cv);
-  }else{
-    // 等分切图：仅对第一张生效
-    const [rows,cols] = mode.split('x').map(Number);
-    const im = GRID.imgs[0];
-    const iw=im.naturalWidth, ih=im.naturalHeight;
-    const cw=Math.floor(iw/cols), ch=Math.floor(ih/rows);
-    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
-      const cv=document.createElement('canvas'); cv.width=cw-gap; cv.height=ch-gap;
-      cv.getContext('2d').drawImage(im, c*cw, r*ch, cw, ch, 0,0, cv.width, cv.height);
-      out.push(cv);
-    }
-  }
-  // 预览第一张
-  const prev = out[0];
-  const p=$('#cv-grid'); p.width=prev.width; p.height=prev.height;
-  p.getContext('2d').drawImage(prev,0,0);
-  $('#grid-info').innerHTML =
-    mode==='vjoin'||mode==='hjoin'
-      ? `拼接完成，共 ${GRID.imgs.length} 张输入`
-      : `切分为 <b>${out.length}</b> 张，每张 ${prev.width}×${prev.height}px`;
-  // 缓存供下载
-  GRID._out = out;
-}
-
-/* =========================================================================
- * 规格对照表
- * ========================================================================= */
-function fillSpecTables(){
-  $('#spec-table').innerHTML =
-    '<tr><th>规格</th><th>物理尺寸</th><th>像素 @300dpi</th><th>推荐底色</th></tr>' +
-    SPECS.map(s=>{
-      const bg = /护照|签证/.test(s.n) ? '白' : /学生证/.test(s.n) ? '蓝' : '白 / 蓝 / 红';
-      return `<tr><td>${s.n}</td><td>${s.mm} mm</td><td>${s.w} × ${s.h}</td><td>${bg}</td></tr>`;
-    }).join('');
-  $('#shop-table').innerHTML =
-    '<tr><th>平台 / 场景</th><th>尺寸要求</th><th>体积上限</th></tr>' +
-    [
-      ['淘宝 / 天猫主图','800×800 或 1200×1200 正方形','建议 &lt; 3MB'],
-      ['京东主图','800×800（长边 ≥ 800）','建议 &lt; 3MB'],
-      ['拼多多主图','750×352 或 1:1','建议 &lt; 2MB'],
-      ['小红书封面','3:4（1080×1440）竖版','建议 &lt; 5MB'],
-      ['微信朋友圈广告','1:1 或 4:5','建议 &lt; 2MB'],
-      ['LinkedIn 头像','400×400','建议 &lt; 200KB'],
-      ['护照打印','390×567 @300dpi','白底'],
-    ].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
-  $('#rgb-table').innerHTML =
-    '<tr><th>颜色</th><th>HEX</th><th>RGB</th></tr>' +
-    BGS.map(b=>{ const [r,g,bl]=hex2rgb(b.c);
-      return `<tr><td>${b.n}</td><td>${b.c}</td><td>${r}, ${g}, ${bl}</td></tr>`; }).join('');
-}
-
-/* =========================================================================
- * 事件绑定
- * ========================================================================= */
-function bindTabs(){
-  $$('.tab').forEach(t => t.onclick = () => {
-    $$('.tab').forEach(x=>x.classList.remove('on'));
-    t.classList.add('on');
-    const key = t.dataset.t;
-    $$('.pane').forEach(p => p.classList.add('hide'));
-    $('#p-'+key).classList.remove('hide');
-  });
-}
-/** 通用拖拽绑定 */
-function bindDrop(zoneId, inputId, onFiles){
-  const z=$(zoneId), i=$(inputId);
-  z.onclick = () => i.click();
-  i.onchange = () => { if(i.files.length){ onFiles(Array.from(i.files)); i.value=''; } };
-  z.ondragover = e => { e.preventDefault(); z.classList.add('over'); };
-  z.ondragleave = () => z.classList.remove('over');
-  z.ondrop = e => { e.preventDefault(); z.classList.remove('over');
-    if(e.dataTransfer.files.length) onFiles(Array.from(e.dataTransfer.files)); };
-}
-
-/* ---- 证件照 ---- */
-function bindId(){
-  // 底色按钮
-  $('#swatches').innerHTML = BGS.map((b,i)=>
-    `<div class="sw${i===0?' on':''}" data-c="${b.c}" title="${b.n}" style="background:${b.c}"></div>`).join('');
-  $$('#swatches .sw').forEach(sw => sw.onclick = () => {
-    $$('#swatches .sw').forEach(x=>x.classList.remove('on'));
-    sw.classList.add('on'); ID.bg = sw.dataset.c; renderId();
-  });
-  // 规格下拉
-  $('#sel-spec').innerHTML = SPECS.map(s=>`<option value="${s.k}">${s.n}（${s.mm}mm / ${s.w}×${s.h}px）</option>`).join('');
-  $('#sel-spec').onchange = e => { ID.spec = SPECS.find(s=>s.k===e.target.value); renderId(); };
-
-  $('#r-tol').oninput = e => { $('#v-tol').textContent=e.target.value; ID.tol=+e.target.value; renderId(); };
-  $('#r-ero').oninput = e => { $('#v-ero').textContent=e.target.value; ID.ero=+e.target.value; renderId(); };
-  $('#r-crop').oninput = e => { ID.crop=+e.target.value; renderId(); };
-  $('#r-zoom').oninput = e => { ID.zoom=+e.target.value; renderId(); };
-
-  $('#b-reset').onclick = () => { $('#card-id').classList.add('hide'); $('#card-sheet').classList.add('hide'); ID.img=null; };
-  $('#b-save1').onclick = async () => {
-    renderId();
-    const blob = await toBlob(cvId, 'image/jpeg', .95);
-    download(blob, `证件照_${ID.spec.k}_${ID.bg.replace('#','')}_${stamp()}.jpg`);
-    $('#out-info').textContent = `已导出：${(blob.size/1024).toFixed(0)} KB · 300dpi 打印效果最佳`;
-  };
-  $('#b-sheet').onclick = () => { renderId(); $('#card-sheet').classList.remove('hide'); $('#card-sheet').scrollIntoView({behavior:'smooth'}); renderSheet(); };
-  $('#b-sheet-back').onclick = () => $('#card-sheet').classList.add('hide');
-  $('#sel-paper').onchange = renderSheet;
-  $('#b-sheet-dl').onclick = async () => {
-    const blob = await toBlob($('#cv-sheet'), 'image/jpeg', .95);
-    download(blob, `证件照排版_${ID.spec.k}_${stamp()}.jpg`);
-  };
-}
-/* ---- 批量 ---- */
-function bindBatch(){
-  $mode.onchange = syncModeFields; syncModeFields();
-  $('#b-batch-run').onclick = runBatch;
-  $('#b-batch-clear').onclick = () => { BAT.files=[]; BAT.results=[];
-    BAT.results.forEach(r=>URL.revokeObjectURL(r.src));
-    $('#card-batch').classList.add('hide'); $('#batch-grid').innerHTML=''; $('#batch-sum').textContent=''; };
-  $('#b-batch-zip').onclick = async () => {
-    if(!BAT.results.length) return;
-    const btn=$('#b-batch-zip'); btn.disabled=true; btn.textContent='打包中…';
-    const files=[];
-    for(const r of BAT.results) files.push({name:r.name, data:new Uint8Array(await r.blob.arrayBuffer())});
-    download(makeZip(files), `图片处理结果_${stamp()}.zip`);
-    btn.disabled=false; btn.textContent='打包下载 (ZIP)';
-  };
-}
-/* ---- 切图拼图 ---- */
-function bindGrid(){
-  $('#b-grid-run').onclick = runGrid;
-  $('#b-grid-zip').onclick = async () => {
-    if(!GRID._out) return;
-    const btn=$('#b-grid-zip'); btn.disabled=true;
-    const files=[];
-    for(let i=0;i<GRID._out.length;i++){
-      const blob = await toBlob(GRID._out[i], 'image/jpeg', .92);
-      files.push({name:`图_${i+1}_${stamp()}.jpg`, data:new Uint8Array(await blob.arrayBuffer())});
-    }
-    download(makeZip(files), `切图拼图_${stamp()}.zip`);
-    btn.disabled=false;
-  };
-}
-
-/* ---------- 启动 ---------- */
-bindTabs(); bindId(); bindBatch(); bindGrid(); fillSpecTables();
-bindDrop('#drop-id','#file-id', async files => {
-  ID.img = await loadImage(files[0]);
-  $('#card-id').classList.remove('hide');
-  $('#card-sheet').classList.add('hide');
-  renderId();
-});
-bindDrop('#drop-batch','#file-batch', async files => {
-  BAT.results.forEach(r=>URL.revokeObjectURL(r.src));
-  BAT.files = [];
-  for(const f of files){ try{ BAT.files.push({name:f.name, img:await loadImage(f)}); }catch(e){} }
-  $('#card-batch').classList.remove('hide');
-  runBatch();     // 默认立即跑一次压缩，给用户即时反馈
-});
-bindDrop('#drop-grid','#file-grid', async files => {
-  GRID.imgs = [];
-  for(const f of files){ try{ GRID.imgs.push(await loadImage(f)); }catch(e){} }
-  $('#grid-nm').textContent = `已选 ${GRID.imgs.length} 张：${GRID.imgs.map(i=>i.naturalWidth+'×'+i.naturalHeight).join('  ')}`;
-});
-</script>
 </body>
 </html>
